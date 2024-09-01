@@ -55,13 +55,13 @@ class Captcha(object):
         return result
     
 
-# Example usage:
-captcha = Captcha()
-# Build the character matrix dictionary
-captcha.build_char_matrix_dict(
-    [f"sampleCaptchas/input/input{i:02d}.jpg" for i in range(25)],
-    [f"sampleCaptchas/output/output{i:02d}.txt" for i in range(25)]
-)
-# Process an example captcha image
-output = captcha("sampleCaptchas/input/input100.jpg", "sampleCaptchas/output/output100.txt")
-print("Inferred captcha:", output)
+# # Example usage:
+# captcha = Captcha()
+# # Build the character matrix dictionary
+# captcha.build_char_matrix_dict(
+#     [f"sampleCaptchas/input/input{i:02d}.jpg" for i in range(25)],
+#     [f"sampleCaptchas/output/output{i:02d}.txt" for i in range(25)]
+# )
+# # Process an example captcha image
+# output = captcha("sampleCaptchas/input/input100.jpg", "sampleCaptchas/output/output100.txt")
+# print("Inferred captcha:", output)
