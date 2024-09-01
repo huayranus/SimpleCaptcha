@@ -16,43 +16,37 @@ To use this module, ensure that you have Python installed along with the followi
 - `PIL` (Pillow)
 - `numpy`
 
-You can install these packages using pip:
-
-\```bash
-pip install Pillow numpy
-\```
-
 ## Usage
 
 ### Initializing the Captcha Class
 
 First, create an instance of the `Captcha` class. Optionally, you can specify a binary threshold:
 
-\```python
+```py
 from captcha_processor import Captcha
 
 captcha = Captcha(threshold=128)
-\```
+```
 
 ### Building the Character Matrix Dictionary
 
 Before inferring CAPTCHA texts from images, you need to build a dictionary that maps characters to their binary representations:
 
-\```python
+```py
 captcha.build_char_matrix_dict(
-    [f"../sampleCaptchas/input/input{i:02d}.jpg" for i in range(25)],
-    [f"../sampleCaptchas/output/output{i:02d}.txt" for i in range(25)]
+    [f"sampleCaptchas/input/input{i:02d}.jpg" for i in range(25)],
+    [f"sampleCaptchas/output/output{i:02d}.txt" for i in range(25)]
 )
-\```
+```
 
 ### Processing an Image
 
 To process an image and infer the CAPTCHA text, use the class as a callable:
 
-\```python
-output = captcha("../sampleCaptchas/input/input100.jpg", "../sampleCaptchas/output/output100.txt")
+```py
+output = captcha("sampleCaptchas/input/input100.jpg", "sampleCaptchas/output/output100.txt")
 print("Inferred captcha:", output)
-\```
+```
 
 ### Saving Output
 
