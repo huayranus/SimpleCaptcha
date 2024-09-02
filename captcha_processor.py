@@ -16,17 +16,18 @@ class Captcha(object):
     def extract_columns(self, binary_values):
         """Extract columns with binary representation of characters."""
         matrix_list = []
-        matrix = []
-        in_char = False
+        start_index = None  # Track the start of a character slice
 
+        # Iterate over each column index
         for j in range(binary_values.shape[1]):
             if 0 in binary_values[:, j]:
-                matrix.append(binary_values[:, j])
-                in_char = True
-            elif in_char:
-                matrix_list.append(np.vstack(matrix))
-                matrix = []
-                in_char = False
+                if start_index is None:
+                    start_index = j  # Start of a new character block
+            else:
+                if start_index is not None:
+                    # Append the slice of columns from start_index to current index j
+                    matrix_list.append(binary_values[:, start_index:j])
+                    start_index = None  # Reset start_index for the next potential character
 
         return matrix_list
 
