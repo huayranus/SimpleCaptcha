@@ -1,29 +1,35 @@
 from PIL import Image
 import numpy as np
-import os
+from collections import defaultdict
 
 class Captcha(object):
     def __init__(self, threshold=128):
         self.threshold = threshold
-        self.matrix_dict = {}
+        self.matrix_dict = defaultdict(list)
 
     def process_image(self, image_path):
         """Load an image, convert to grayscale, and apply a binary threshold."""
-        image = Image.open(image_path).convert("L")
-        pixel_values = np.array(image)
+        with Image.open(image_path) as image:
+            pixel_values = np.array(image.convert("L"))
         return (pixel_values > self.threshold).astype(int)
 
     def extract_columns(self, binary_values):
         """Extract columns with binary representation of characters."""
         matrix_list = []
         matrix = []
+        in_char = False
+
         for j in range(binary_values.shape[1]):
             if 0 in binary_values[:, j]:
                 matrix.append(binary_values[:, j])
-            else:
-                if matrix:
-                    matrix_list.append(np.vstack(matrix))
-                    matrix = []
+                in_char = True
+            elif in_char:
+                matrix_list.append(np.vstack(matrix))
+                matrix = []
+                in_char = False
+
+        if matrix:  # Handle the case where the last column is part of a character
+            matrix_list.append(np.vstack(matrix))
         return matrix_list
 
     def build_char_matrix_dict(self, image_paths, labels_paths):
@@ -34,18 +40,19 @@ class Captcha(object):
             with open(lbl_path, 'r') as file:
                 string = file.read().strip()
             for char, mat in zip(string, matrix_list):
-                self.matrix_dict[char] = mat
+                self.matrix_dict[char].append(mat)
 
     def infer(self, image_path):
         """Infer the text from a captcha image using the pre-built matrix dictionary."""
         binary_values = self.process_image(image_path)
         matrix_list = self.extract_columns(binary_values)
-        output = ""
+        output = []
+
         for mat in matrix_list:
-            for key in self.matrix_dict:
-                if np.array_equal(self.matrix_dict[key], mat):
-                    output += key
-        return output
+            matched = [key for key, mats in self.matrix_dict.items() if any(np.array_equal(m, mat) for m in mats)]
+            output.append(matched[0] if matched else '?')
+
+        return ''.join(output)
 
     def __call__(self, im_path, save_path):
         """Process an image and save the result to a file."""
@@ -55,13 +62,13 @@ class Captcha(object):
         return result
     
 
-# # Example usage:
-# captcha = Captcha()
-# # Build the character matrix dictionary
-# captcha.build_char_matrix_dict(
-#     [f"sampleCaptchas/input/input{i:02d}.jpg" for i in range(25)],
-#     [f"sampleCaptchas/output/output{i:02d}.txt" for i in range(25)]
-# )
-# # Process an example captcha image
-# output = captcha("sampleCaptchas/input/input100.jpg", "sampleCaptchas/output/output100.txt")
-# print("Inferred captcha:", output)
+# Example usage:
+captcha = Captcha()
+# Build the character matrix dictionary
+captcha.build_char_matrix_dict(
+    [f"sampleCaptchas/input/input{i:02d}.jpg" for i in range(25)],
+    [f"sampleCaptchas/output/output{i:02d}.txt" for i in range(25)]
+)
+# Process an example captcha image
+output = captcha("sampleCaptchas/input/input100.jpg", "sampleCaptchas/output/output100.txt")
+print("Inferred captcha:", output)
