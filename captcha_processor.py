@@ -28,8 +28,6 @@ class Captcha(object):
                 matrix = []
                 in_char = False
 
-        if matrix:  # Handle the case where the last column is part of a character
-            matrix_list.append(np.vstack(matrix))
         return matrix_list
 
     def build_char_matrix_dict(self, image_paths, labels_paths):
